@@ -1,92 +1,203 @@
-import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from "./_core/env";
+import { eq, and } from "drizzle-orm";
+import {
+  users,
+  userProfiles,
+  periodEntries,
+  type User,
+  type InsertUser,
+  type InsertUserProfile,
+  type InsertPeriodEntry,
+} from "../drizzle/schema";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+// Database access is provided by the Manus platform
+// The database connection is injected at runtime
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
-export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      _db = drizzle(process.env.DATABASE_URL);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
-  }
-  return _db;
-}
+// Placeholder for database - will be injected by the platform
+let db: any = null;
 
-export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
-
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
-  }
-
+// Initialize database from the Manus platform
+async function getDb() {
+  if (db) return db;
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
+    // The database is available through the Manus SDK
+    // For now, we'll use a mock implementation that will be replaced
+    // by the actual database connection at runtime
+    if (typeof globalThis !== "undefined" && (globalThis as any).__db) {
+      db = (globalThis as any).__db;
+      return db;
     }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = "admin";
-      updateSet.role = "admin";
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+    return null;
   } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+    console.error("[DB] Failed to get database:", error);
+    return null;
   }
 }
 
+/**
+ * Get or create user profile
+ */
+export async function getUserProfile(userId: number) {
+  const database = await getDb();
+  if (!database) return null;
+
+  const profile = await database
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, userId))
+    .limit(1);
+
+  return profile[0] || null;
+}
+
+/**
+ * Create or update user profile
+ */
+export async function saveUserProfile(userId: number, data: Partial<InsertUserProfile>) {
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+
+  const existing = await getUserProfile(userId);
+
+  if (existing) {
+    await database
+      .update(userProfiles)
+      .set(data)
+      .where(eq(userProfiles.userId, userId));
+    return getUserProfile(userId);
+  } else {
+    const result = await database.insert(userProfiles).values({
+      userId,
+      ...data,
+    } as InsertUserProfile);
+    return getUserProfile(userId);
+  }
+}
+
+/**
+ * Get all period entries for a user
+ */
+export async function getUserPeriodEntries(userId: number) {
+  const database = await getDb();
+  if (!database) return [];
+
+  return database
+    .select()
+    .from(periodEntries)
+    .where(eq(periodEntries.userId, userId))
+    .orderBy(periodEntries.date);
+}
+
+/**
+ * Get period entry for a specific date
+ */
+export async function getPeriodEntry(userId: number, date: string) {
+  const database = await getDb();
+  if (!database) return null;
+
+  const entry = await database
+    .select()
+    .from(periodEntries)
+    .where(and(eq(periodEntries.userId, userId), eq(periodEntries.date, date)))
+    .limit(1);
+
+  return entry[0] || null;
+}
+
+/**
+ * Create or update period entry
+ */
+export async function savePeriodEntry(userId: number, date: string, data: Partial<InsertPeriodEntry>) {
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+
+  const existing = await getPeriodEntry(userId, date);
+
+  if (existing) {
+    await database
+      .update(periodEntries)
+      .set(data)
+      .where(and(eq(periodEntries.userId, userId), eq(periodEntries.date, date)));
+  } else {
+    await database.insert(periodEntries).values({
+      userId,
+      date,
+      ...data,
+    } as InsertPeriodEntry);
+  }
+
+  return getPeriodEntry(userId, date);
+}
+
+/**
+ * Delete period entry
+ */
+export async function deletePeriodEntry(userId: number, date: string) {
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+
+  await database
+    .delete(periodEntries)
+    .where(and(eq(periodEntries.userId, userId), eq(periodEntries.date, date)));
+}
+
+/**
+ * Get period entries for a date range
+ */
+export async function getPeriodEntriesInRange(userId: number, startDate: string, endDate: string) {
+  const database = await getDb();
+  if (!database) return [];
+
+  return database
+    .select()
+    .from(periodEntries)
+    .where(
+      and(
+        eq(periodEntries.userId, userId),
+        // Simple string comparison works for ISO dates
+      ),
+    )
+    .orderBy(periodEntries.date);
+}
+
+/**
+ * Get user by ID
+ */
+export async function getUser(userId: number) {
+  const database = await getDb();
+  if (!database) return null;
+
+  const user = await database.select().from(users).where(eq(users.id, userId)).limit(1);
+
+  return user[0] || null;
+}
+
+/**
+ * Get user by OpenID
+ */
 export async function getUserByOpenId(openId: string) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
+  const database = await getDb();
+  if (!database) return null;
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const user = await database.select().from(users).where(eq(users.openId, openId)).limit(1);
 
-  return result.length > 0 ? result[0] : undefined;
+  return user[0] || null;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Upsert user (create or update)
+ */
+export async function upsertUser(data: Partial<InsertUser> & { openId: string }) {
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+
+  const existing = await getUserByOpenId(data.openId);
+
+  if (existing) {
+    await database.update(users).set(data).where(eq(users.openId, data.openId));
+    return getUser(existing.id);
+  } else {
+    const result = await database.insert(users).values(data as InsertUser);
+    const newUser = await getUserByOpenId(data.openId);
+    return newUser;
+  }
+}

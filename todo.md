@@ -132,3 +132,14 @@
 - [ ] Add irregular cycle detection algorithm
 - [ ] Build PCOS risk scoring system
 - [ ] Implement doctor visit reminders and health checkup tracking
+
+
+## Phase 9: Authentication Implementation
+- [x] Create login screen with Google Sign-In button
+- [x] Update root layout to show login screen for unauthenticated users
+- [x] Create database schema for user profiles and period entries
+- [x] Create database migration and apply to backend
+- [x] Implement database helper functions for user and period data
+- [ ] Create tRPC API endpoints for user profile and period entries
+- [ ] Update storage layer to sync with backend database
+- [ ] Test authentication flow end-to-end

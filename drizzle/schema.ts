@@ -25,4 +25,42 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * User profile table - stores period tracking preferences and cycle information
+ */
+export const userProfiles = mysqlTable("userProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  age: int("age"),
+  cycleLengthAverage: int("cycleLengthAverage").default(28).notNull(),
+  periodDurationAverage: int("periodDurationAverage").default(5).notNull(),
+  lastPeriodStart: varchar("lastPeriodStart", { length: 10 }).notNull(),
+  notificationsEnabled: int("notificationsEnabled").default(1).notNull(),
+  onboardingCompleted: int("onboardingCompleted").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+
+/**
+ * Period entries table - stores daily period tracking data
+ */
+export const periodEntries = mysqlTable("periodEntries", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // ISO format: YYYY-MM-DD
+  isPeriodDay: int("isPeriodDay").default(0).notNull(),
+  flowLevel: varchar("flowLevel", { length: 20 }), // Light, Medium, Heavy, None
+  symptoms: text("symptoms"), // JSON array of symptoms
+  painIntensity: int("painIntensity"), // 1-5 scale
+  mood: varchar("mood", { length: 20 }), // Happy, Sad, Angry, Anxious, Neutral
+  energy: varchar("energy", { length: 20 }), // Low, Medium, High
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PeriodEntry = typeof periodEntries.$inferSelect;
+export type InsertPeriodEntry = typeof periodEntries.$inferInsert;
