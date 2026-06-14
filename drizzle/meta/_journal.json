@@ -1,19 +1,12 @@
 {
-  "version": "7",
-  "dialect": "mysql",
+  "version": "5",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1763372440610,
-      "tag": "0000_elite_eternals",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1781440052045,
-      "tag": "0001_big_iron_monger",
+      "version": "7",
+      "when": 1781441397999,
+      "tag": "0000_complex_natasha_romanoff",
       "breakpoints": true
     }
   ]
