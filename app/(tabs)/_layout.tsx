@@ -32,7 +32,61 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="house.fill" color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="track"
+        options={{
+          title: "Track",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar.badge.plus" color={color} />
+          ),
+        }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("log-period");
+          },
+        })}
+      />
+
+      <Tabs.Screen
+        name="insights"
+        options={{
+          title: "Insights",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="chart.bar.fill" color={color} />
+          ),
+        }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("insights");
+          },
+        })}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.fill" color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="knowledge"
+        options={{
+          title: "Learn",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="book.fill" color={color} />
+          ),
         }}
       />
     </Tabs>

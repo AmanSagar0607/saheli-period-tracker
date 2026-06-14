@@ -61,13 +61,21 @@
 - [x] Implement suggestion randomization (avoid repetition)
 
 ## Phase 8: Settings & Customization
-- [ ] Build Settings screen layout
-- [ ] Implement profile editing
-- [ ] Add notification toggle and scheduling
+- [x] Build Settings screen layout (Profile tab)
+- [x] Implement profile editing
+- [x] Add notification toggle and scheduling
 - [ ] Create symptom preference customization
 - [ ] Implement data export functionality
 - [ ] Add app reset/clear data option
 - [ ] Add about and support information
+
+## Phase 8.5: Navigation & UI Enhancement
+- [x] Add bottom navbar with 5 tabs (Home, Track, Insights, Profile, Learn)
+- [x] Create Track tab for quick logging
+- [x] Create Profile tab with user information
+- [x] Create Knowledge/Learn tab with glossary
+- [x] Add icon mappings for all tabs
+- [x] Implement tab navigation and routing
 
 ## Phase 9: Polish & Refinement
 - [x] Add loading states
@@ -86,3 +94,41 @@
 - [ ] Check for data privacy (no external logging)
 - [ ] Create checkpoint for delivery
 - [ ] Prepare app for publication
+
+
+## Phase 11: Autonomous Health Checks & Smart Alerts (Research-Based)
+- [ ] Build daily health check-in screen with personalized questions
+- [ ] Implement smart alert system based on check-in responses
+- [ ] Add symptom severity tracking with pattern detection
+- [ ] Create alerts for abnormal patterns (irregular cycles, increasing pain)
+- [ ] Implement PCOS risk assessment based on cycle data
+- [ ] Add "see a doctor" recommendations when patterns suggest disorders
+
+## Phase 12: Intelligent Wellness Reminders
+- [ ] Implement smart hydration reminders (phase-aware frequency)
+- [ ] Create nutrition alerts based on phase and symptoms
+- [ ] Build exercise recommendations (rest vs. intense by phase)
+- [ ] Add posture reminders during heavy flow days
+- [ ] Implement sleep optimization tips by phase
+- [ ] Create stress management and meditation suggestions
+
+## Phase 13: Mental Health Integration
+- [ ] Add mood tracking tied to cycle phases
+- [ ] Implement PMS/PMDD symptom monitoring
+- [ ] Create anxiety/depression alerts during high-risk phases
+- [ ] Build phase-aware meditation and mindfulness recommendations
+- [ ] Add mental health resources and when to seek help
+
+## Phase 14: Ayurveda-Based Personalization
+- [ ] Add dosha assessment quiz (Vata, Pitta, Kapha)
+- [ ] Create dosha-specific recommendations
+- [ ] Implement phase-specific Ayurvedic herbs and spices
+- [ ] Add seasonal adjustments to recommendations
+- [ ] Build traditional Indian wellness practice integration
+
+## Phase 15: Health Monitoring & Early Detection
+- [ ] Implement dysmenorrhea severity tracking
+- [ ] Create pain management tips based on severity
+- [ ] Add irregular cycle detection algorithm
+- [ ] Build PCOS risk scoring system
+- [ ] Implement doctor visit reminders and health checkup tracking
